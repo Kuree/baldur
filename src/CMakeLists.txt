@@ -1,4 +1,5 @@
-add_library(baldur sv.cc)
+add_library(baldur sv.cc symbol.cc)
 
-target_link_libraries(baldur slang)
-target_include_directories(baldur PRIVATE ../extern/slang/include)
+target_link_libraries(baldur slangcompiler)
+target_include_directories(baldur PRIVATE ../extern/slang/include
+                                          ../extern/fmt/include)
