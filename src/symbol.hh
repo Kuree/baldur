@@ -3,36 +3,37 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <unordered_set>
 
 // this is lightweight wrapper class around slang's symbol
 
+namespace slang {
+class Symbol;
+class Statement;
+}  // namespace slang
+
 namespace baldur {
 
-class Scope;
-
-enum class SymbolKind { Net, Register, Scope, Parameter };
-
-class Symbol {
+class SymbolTable {
 public:
-    std::string name;
-    Scope *parent;
-    SymbolKind kind;
-};
-
-class Scope : public Symbol {
-public:
-    void add_symbol(std::unique_ptr<Symbol> symbol);
-    void add_symbol(const std::string &name, std::unique_ptr<Symbol> symbol);
+    void add_symbol(const std::string &path, const slang::Symbol* symbol);
+    const slang::Symbol * get_symbol(const std::string &path) const;
+    std::unordered_set<const slang::Symbol*> get_symbols(const std::string &path) const;
 
 private:
-    // scope owns the child symbols and scopes
-    std::unordered_set<std::unique_ptr<Symbol>> symbols_;
+    using ScopeTable = std::unordered_map<std::string, std::shared_ptr<SymbolTable>>;
+    std::unordered_map<std::string, const slang::Symbol*> symbols_;
+    ScopeTable child_scopes_;
 
-    // this data structure is designed for fast lookups, where the members are not mutable
-    // notice that not all symbols has names, e.g. un-named statement blocks
-    std::unordered_map<std::string, const Symbol *> symbol_map_;
+    void add_symbol(const std::vector<std::string>::iterator &begin,
+                    const std::vector<std::string>::iterator &end, const slang::Symbol* symbol);
+    SymbolTable& add_scope(const std::string &name);
+    void add_symbol_(const std::string &name, const slang::Symbol * symbol);
+    const slang::Symbol *get_symbol(const std::vector<std::string>::iterator &begin,
+                                    const std::vector<std::string>::iterator &end) const;
+    const slang::Symbol *get_symbol_(const std::string &path) const;
 };
 
 }  // namespace baldur
