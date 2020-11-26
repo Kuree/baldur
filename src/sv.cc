@@ -6,40 +6,50 @@
 #include "fmt/format.h"
 #include "slang/compilation/Compilation.h"
 #include "slang/parsing/Preprocessor.h"
+#include "slang/symbols/ASTVisitor.h"
 #include "slang/symbols/CompilationUnitSymbols.h"
 #include "slang/symbols/Symbol.h"
 #include "slang/syntax/SyntaxTree.h"
 #include "slang/text/SourceManager.h"
-#include "slang/symbols/ASTVisitor.h"
 
 namespace fs = std::filesystem;
 
 // visitor to visit all the symbols if possible
-class SymbolVisitor {
+class SymbolVisitor : public slang::ASTVisitor<SymbolVisitor, true, false> {
 public:
     SymbolVisitor(slang::Compilation &compilation, baldur::Symbol &root)
         : compilation_(compilation), root_(root) {}
 
-    template <typename T>
-    void visit(const T &elem) {
-        // depends on the type
-        if constexpr (std::is_base_of_v<slang::Statement, T>) {
-        } else if constexpr (std::is_base_of_v<slang::Expression, T>) {
-        } else if constexpr (std::is_base_of_v<slang::ValueSymbol, T>) {
-        }
-        else if  constexpr (std::is_base_of_v<slang::Scope, T>) {
-            if (!elem.empty()) {
-                for (auto const &mem: elem.members())
-                    visit(mem);
-            }
-        }
+
+    void handle(const slang::ExpressionStatement &stmt) {
+        process(stmt);
     }
 
+    void handle(const slang::ConditionalStatement &stmt) {
+        process(stmt);
+        visitDefault(stmt);
+    }
+
+    void handle(const slang::ContinuousAssignSymbol &symbol) {
+        //auto const &stmt = symbol.location
+    }
+
+    void handle(const slang::InstanceSymbol &symbol) {
+        visitDefault(symbol);
+    }
+
+
 private:
+    void process(const slang::Statement &statement) {
+        auto const &start = statement.sourceRange.start();
+        auto start_filename = compilation_.getSourceManager()->getFileName(start);
+        auto start_line = compilation_.getSourceManager()->getLineNumber(start);
+        printf("%s %ld\n", start_filename.begin(), start_line);
+    }
+
     slang::Compilation &compilation_;
     baldur::Symbol &root_;
 };
-
 
 namespace baldur {
 std::unique_ptr<Symbol> parse_sv(const std::vector<std::string> &files,
@@ -80,7 +90,7 @@ std::unique_ptr<Symbol> parse_sv(const std::vector<std::string> &files,
     auto const &root = compilation.getRoot();
     auto result = std::make_unique<Symbol>();
     SymbolVisitor visitor(compilation, *result);
-    visitor.visit(root);
+    root.visit(visitor);
     return result;
 }
 }  // namespace baldur
