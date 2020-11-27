@@ -76,7 +76,7 @@ const slang::Symbol *SymbolTable::get_symbol(const std::vector<std::string>::ite
 std::unordered_set<const slang::Symbol *> SymbolTable::get_symbols(const std::string &path) const {
     auto tokens = get_tokens(path, ".");
     auto const *scope = this;
-    for (auto const &name: tokens) {
+    for (auto const &name : tokens) {
         if (scope->child_scopes_.find(name) == scope->child_scopes_.end()) {
             // unable to find anything
             scope = nullptr;
@@ -87,13 +87,24 @@ std::unordered_set<const slang::Symbol *> SymbolTable::get_symbols(const std::st
     }
     if (scope) {
         std::unordered_set<const slang::Symbol *> result;
-        for (auto const &iter: scope->symbols_) {
+        for (auto const &iter : scope->symbols_) {
             result.emplace(iter.second);
         }
         return result;
     } else {
         return {};
     }
+}
+
+void StatementTable::add_stmt(const std::string &filename, uint64_t line_num,
+                              const slang::Statement *stmt) {
+    SourceInfo info{filename, line_num};
+    stmts_map_.emplace(info, stmt);
+}
+
+bool StatementTable::has_stmt(const std::string &filename, uint64_t line_num) {
+    SourceInfo info{filename, line_num};
+    return stmts_map_.find(info) != stmts_map_.end();
 }
 
 }  // namespace baldur
