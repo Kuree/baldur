@@ -39,21 +39,12 @@ private:
 
 class StatementTable {
 public:
-    struct SourceInfo {
-        std::string filename;
-        uint64_t line_num;
-
-        inline bool operator==(const SourceInfo &other) const {
-            return filename == other.filename && line_num == other.line_num;
-        }
-
-        inline bool operator<(const SourceInfo &other) const {
-            return filename < other.filename && line_num < other.line_num;  // NOLINT
-        }
-    };
+    using SourceInfo = std::pair<std::string, uint64_t>;
 
     void add_stmt(const std::string &filename, uint64_t line_num, const slang::Statement* stmt);
-    bool has_stmt(const std::string &filename, uint64_t line_num);
+    bool has_stmt(const std::string &filename, uint64_t line_num) const;
+    const slang::Statement* get_stmt(const std::string &filename, uint64_t line_num) const;
+    inline uint64_t table_size() const { return stmts_map_.size(); }
 
 private:
     std::map<SourceInfo, const slang::Statement*> stmts_map_;

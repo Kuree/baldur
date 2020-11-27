@@ -51,7 +51,6 @@ private:
         auto start_filename = compilation_.getSourceManager()->getFileName(start);
         auto start_line = compilation_.getSourceManager()->getLineNumber(start);
         stmt_table_.add_stmt(std::string(start_filename), start_line, &statement);
-        printf("%s %ld\n", start_filename.begin(), start_line);
     }
 
     slang::Compilation &compilation_;

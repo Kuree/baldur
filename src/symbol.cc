@@ -25,7 +25,6 @@ SymbolTable &SymbolTable::add_scope(const std::string &name) {
         child_scopes_.emplace(name, scope);
         return *scope;
     }
-
 }
 
 void SymbolTable::add_symbol(const std::vector<std::string>::iterator &begin,
@@ -107,9 +106,18 @@ void StatementTable::add_stmt(const std::string &filename, uint64_t line_num,
     stmts_map_.emplace(info, stmt);
 }
 
-bool StatementTable::has_stmt(const std::string &filename, uint64_t line_num) {
+bool StatementTable::has_stmt(const std::string &filename, uint64_t line_num) const {
+    return get_stmt(filename, line_num) != nullptr;
+}
+
+const slang::Statement *StatementTable::get_stmt(const std::string &filename,
+                                                 uint64_t line_num) const {
     SourceInfo info{filename, line_num};
-    return stmts_map_.find(info) != stmts_map_.end();
+    if (stmts_map_.find(info) != stmts_map_.end()) {
+        return stmts_map_.at(info);
+    } else {
+        return nullptr;
+    }
 }
 
 }  // namespace baldur
