@@ -18,9 +18,14 @@ void SymbolTable::add_symbol(const std::string &path, const slang::Symbol *symbo
 }
 
 SymbolTable &SymbolTable::add_scope(const std::string &name) {
-    auto scope = std::make_shared<SymbolTable>();
-    child_scopes_.emplace(name, scope);
-    return *scope;
+    if (child_scopes_.find(name) != child_scopes_.end()) {
+        return *child_scopes_.at(name);
+    } else {
+        auto scope = std::make_shared<SymbolTable>();
+        child_scopes_.emplace(name, scope);
+        return *scope;
+    }
+
 }
 
 void SymbolTable::add_symbol(const std::vector<std::string>::iterator &begin,

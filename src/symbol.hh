@@ -46,6 +46,10 @@ public:
         inline bool operator==(const SourceInfo &other) const {
             return filename == other.filename && line_num == other.line_num;
         }
+
+        inline bool operator<(const SourceInfo &other) const {
+            return filename < other.filename && line_num < other.line_num;  // NOLINT
+        }
     };
 
     void add_stmt(const std::string &filename, uint64_t line_num, const slang::Statement* stmt);

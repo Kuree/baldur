@@ -4,5 +4,10 @@
 using namespace baldur;
 
 TEST(sv, parse) {   // NOLINT
-    auto r = parse_sv({"test1.sv"}, {}, {});
+    SystemVerilogInfo info({"test1.sv"}, {});
+    info.build_tables();
+    auto const *sym_table = info.get_symbol_table();
+    auto vars = sym_table->get_symbols("top");
+    // in, out, a, b
+    EXPECT_EQ(vars.size(), 4);
 }

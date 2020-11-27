@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 3.12)
 project(baldur)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 # add slang library
 add_subdirectory(extern/slang)
 add_subdirectory(extern/googletest/)
 
-set(CMAKE_CXX_FLAGS "-O0 -ggdb -g")
-
+set(CMAKE_BUILD_TYPE Debug)
 # add main library
 add_subdirectory(src)
 
